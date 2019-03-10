@@ -26,7 +26,7 @@ contract PictosisGenesisToken is ERC20, ERC20Detailed, ERC20Mintable, ERC20Cappe
     }
 
     function transfer(address to, uint256 value) public returns (bool) {
-        revert("Token can only be exchanged for PICTO tokens in the swap contract");
+        require(to == swapContract && swapContract != address(0), "Token can only be exchanged for PICTO tokens in the swap contract");
     }
 
     uint256 constant D160 = 0x0010000000000000000000000000000000000000000;
