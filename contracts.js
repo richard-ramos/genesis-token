@@ -38,12 +38,8 @@ module.exports = {
       ERC20: { deploy: false },
       ERC20Mintable: { deploy: false },
       ERC20Capped: { deploy: false },
-      PictosisTestToken: {
-        args: []        
-      },
-      PictosisGenesisToken: {
-        args: []
-      },
+      PictosisTestToken: { },
+      PictosisGenesisToken: { },
       PictosisGenesisExchanger: {
         args: ["$PictosisGenesisToken", "$PictosisTestToken"]
       }
@@ -57,7 +53,12 @@ module.exports = {
       "ws://localhost:8546",
       "http://localhost:8545",
       "$WEB3"  // uses pre existing web3 object if available (e.g in Mist)
-    ]
+    ],
+    contracts: {
+      PictosisTestToken: {
+        args: []        
+      },
+    }
   },
 
   // merges with the settings in default
