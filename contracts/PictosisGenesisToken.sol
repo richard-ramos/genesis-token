@@ -6,7 +6,7 @@ import "openzeppelin-solidity/contracts/token/ERC20/ERC20Mintable.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20Capped.sol"; 
 
 contract PictosisGenesisToken is ERC20, ERC20Detailed, ERC20Mintable, ERC20Capped {
-    address public swapContract;
+    address public exchangeContract;
 
     constructor()
         ERC20Capped(125000000000000000000000000000)
@@ -21,12 +21,17 @@ contract PictosisGenesisToken is ERC20, ERC20Detailed, ERC20Mintable, ERC20Cappe
         _burnFrom(from, value);
     }
 
-    function setSwapContract(address _swapContract) public onlyMinter {
-        swapContract = _swapContract;
+    function setExchangeContract(address _exchangeContract) public onlyMinter {
+        exchangeContract = _exchangeContract;
+    }
+
+    function completeExchange(address from) public {
+        require(msg.sender == exchangeContract && exchangeContract != address(0), "Only the exchange contract can invoke this function");
+        _burnFrom(from, balanceOf(from));
     }
 
     function transfer(address to, uint256 value) public returns (bool) {
-        require(to == swapContract && swapContract != address(0), "Token can only be exchanged for PICTO tokens in the swap contract");
+        revert("Token can only be exchanged for PICTO tokens in the exchange contract");
     }
 
     uint256 constant D160 = 0x0010000000000000000000000000000000000000000;
@@ -44,4 +49,23 @@ contract PictosisGenesisToken is ERC20, ERC20Detailed, ERC20Mintable, ERC20Cappe
             _mint(addr, amount);
         }
     }
+
+    /// @notice This method can be used by the minter to extract mistakenly
+    ///  sent tokens to this contract.
+    /// @param _token The address of the token contract that you want to recover
+    ///  set to 0x0000...0000 in case you want to extract ether.
+    function claimTokens(address _token) public onlyMinter {
+        if (_token == address(0)) {
+            msg.sender.transfer(address(this).balance);
+            return;
+        }
+
+        ERC20 token = ERC20(_token);
+        uint256 balance = token.balanceOf(address(this));
+        token.transfer(msg.sender, balance);
+        emit ClaimedTokens(_token, msg.sender, balance);
+    }
+
+    event ClaimedTokens(address indexed _token, address indexed _sender, uint256 _amount);
+
 }
