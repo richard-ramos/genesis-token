@@ -38,14 +38,18 @@ module.exports = {
       ERC20: { deploy: false },
       ERC20Mintable: { deploy: false },
       ERC20Capped: { deploy: false },
-      PictosisTestToken: {
+      ERC20Snapshot: { deploy: false },
+      Math: { deploy: false },
+      Counters: { deploy: false },
+      Array: { deploy: false },
+      PictosisToken: {
         args: []        
       },
       PictosisGenesisToken: {
         args: []
       },
       PictosisGenesisExchanger: {
-        args: ["$PictosisGenesisToken", "$PictosisTestToken"]
+        args: ["$PictosisGenesisToken", "$PictosisToken"]
       }
     }
   },

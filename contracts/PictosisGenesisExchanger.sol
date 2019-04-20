@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.5.2;
 
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol"; 
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol"; 
@@ -31,11 +31,11 @@ contract PictosisGenesisExchanger is Ownable {
         totalCollected = totalCollected.add(amount);
         collected[msg.sender] = collected[msg.sender].add(amount);
 
-        require(picto.transfer(msg.sender, amount), "Transfer failure");
-
         genesis.completeExchange(msg.sender);
-
+        
         emit TokensCollected(msg.sender, amount);
+
+        require(picto.transfer(msg.sender, amount), "Transfer failure");
     }
 
     /// @notice This method can be used by the minter to extract mistakenly
