@@ -11,11 +11,11 @@ import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 
 contract PictosisCrowdsale is CappedCrowdsale, MintedCrowdsale, TimedCrowdsale, Ownable {
     address presaleAddress;
-    uint presaleCap = 125000000000000000000000000;
     uint presaleSold = 0;
     bool presaleActive = false;
     
-    uint maxSupplyCap = 200000000000000000000000000;
+    uint presaleCap   = 125000000000000000000000000;
+    uint maxSupplyCap = 650000000000000000000000000;
 
     constructor (
         uint256 openingTime,
