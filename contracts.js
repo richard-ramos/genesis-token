@@ -44,7 +44,7 @@ module.exports = {
         args: ["$PictosisGenesisToken", "$PictosisToken"]
       },
       PictosisCrowdsale: {
-        args: [ parseInt((new Date()).getTime() / 1000, 10) + 30, parseInt((new Date()).getTime() / 1000, 10) + 86400, 10000, "$accounts[0]", "$PictosisToken"  ],
+        args: [ parseInt((new Date()).getTime() / 1000, 10) + 30, parseInt((new Date()).getTime() / 1000, 10) + 86400, '1500', "$accounts[0]", "$PictosisToken"  ],
         onDeploy: ['PictosisToken.methods.addMinter("$PictosisCrowdsale").send()']
       }
     }
