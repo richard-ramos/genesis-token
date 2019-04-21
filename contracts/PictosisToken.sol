@@ -10,7 +10,7 @@ import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 
 contract PictosisToken is ERC20, ERC20Detailed, ERC20Mintable, ERC20Capped, ERC20Snapshot, Ownable {
     constructor()
-        ERC20Capped(125000000000000000000000000)
+        ERC20Capped(1000000000000000000000000000)
         ERC20Mintable()
         ERC20Detailed("Pictosis Token", "PICTO", 18)
         ERC20()
