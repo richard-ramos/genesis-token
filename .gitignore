@@ -63,3 +63,4 @@ typings/
 .embark
 build
 chains.json
+embarkArtifacts/
