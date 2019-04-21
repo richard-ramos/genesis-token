@@ -32,16 +32,8 @@ module.exports = {
       "http://localhost:8545"
     ],
     gas: "auto",
+    strategy: 'explicit', // 'implicit' is the default
     contracts: {
-      Roles: { deploy: false },
-      SafeMath: { deploy: false },
-      ERC20: { deploy: false },
-      ERC20Mintable: { deploy: false },
-      ERC20Capped: { deploy: false },
-      ERC20Snapshot: { deploy: false },
-      Math: { deploy: false },
-      Counters: { deploy: false },
-      Array: { deploy: false },
       PictosisToken: {
         args: []        
       },
@@ -50,6 +42,10 @@ module.exports = {
       },
       PictosisGenesisExchanger: {
         args: ["$PictosisGenesisToken", "$PictosisToken"]
+      },
+      PictosisCrowdsale: {
+        args: [ parseInt((new Date()).getTime() / 1000, 10) + 30, parseInt((new Date()).getTime() / 1000, 10) + 86400, 10000, "$accounts[0]", "$PictosisToken"  ],
+        onDeploy: ['PictosisToken.methods.addMinter("$PictosisCrowdsale").send()']
       }
     }
   },
