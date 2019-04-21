@@ -31,11 +31,11 @@ contract PictosisGenesisExchanger is Ownable {
         totalCollected = totalCollected.add(amount);
         collected[msg.sender] = collected[msg.sender].add(amount);
 
-        genesis.completeExchange(msg.sender);
-        
-        emit TokensCollected(msg.sender, amount);
-
         require(picto.transfer(msg.sender, amount), "Transfer failure");
+
+        genesis.completeExchange(msg.sender);
+
+        emit TokensCollected(msg.sender, amount);
     }
 
     /// @notice This method can be used by the minter to extract mistakenly
