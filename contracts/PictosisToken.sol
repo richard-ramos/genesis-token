@@ -27,6 +27,10 @@ contract PictosisToken is ERC20, ERC20Detailed, ERC20Mintable, ERC20Capped, ERC2
         transfersEnabledDate = _enableTransfersDate;
     }
 
+    function areTransfersEnabled() public view returns(bool) {
+        return block.timestamp >= transfersEnabledDate;
+    }
+
     function transfer(
             address to,
             uint256 value
