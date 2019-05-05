@@ -10,6 +10,7 @@
   "homepage": "",
   "devDependencies": {},
   "dependencies": {
+    "embarkjs-connector-web3": "^4.0.0",
     "openzeppelin-solidity": "2.2.0"
   }
 }
