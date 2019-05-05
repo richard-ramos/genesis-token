@@ -5,6 +5,7 @@ import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol"; 
 
 import "./PictosisGenesisToken.sol";
+import "./PictosisToken.sol";
 
 contract PictosisGenesisExchanger is Ownable {
     using SafeMath for uint256;
@@ -13,29 +14,35 @@ contract PictosisGenesisExchanger is Ownable {
     uint256 public totalCollected;
 
     PictosisGenesisToken public genesis;
-    ERC20 public picto;
+    PictosisToken public picto;
     
     constructor(address _genesis, address _picto) public {
         genesis = PictosisGenesisToken(_genesis);
-        picto = ERC20(_picto);
+        picto = PictosisToken(_picto);
     }
 
-    /// @notice This method should be called by the genesis holders to collect their picto token
+    /// @notice Can collect tokens;
+    function canCollect() public view returns(bool) {
+        return picto.areTransfersEnabled();
+    }
+
+    /// @notice This method should be called by the genesis holders to collect their picto token. Requires approval
     function collect() public {
-        uint256 balance = genesis.balanceOf(msg.sender);
-        uint256 amount = balance.sub(collected[msg.sender]);
+        require(picto.areTransfersEnabled(), "Cannot collect tokens yet");
 
-        require(amount > 0, "Tokens already exchanged");
-        require(picto.balanceOf(address(this)) >= amount, "Exchanger does not have funds available");
+        uint256 genesisBalance = genesis.balanceOf(msg.sender);
 
-        totalCollected = totalCollected.add(amount);
-        collected[msg.sender] = collected[msg.sender].add(amount);
+        require(genesisBalance > 0, "No tokens available or already exchanged");
+        require(picto.balanceOf(address(this)) >= genesisBalance, "Exchanger does not have funds available");
 
-        require(picto.transfer(msg.sender, amount), "Transfer failure");
+        totalCollected = totalCollected.add(genesisBalance);
+        collected[msg.sender] = collected[msg.sender].add(genesisBalance);
+
+        require(picto.transfer(msg.sender, genesisBalance), "Transfer failure");
 
         genesis.completeExchange(msg.sender);
 
-        emit TokensCollected(msg.sender, amount);
+        emit TokensCollected(msg.sender, genesisBalance);
     }
 
     /// @notice This method can be used by the minter to extract mistakenly
@@ -48,12 +55,16 @@ contract PictosisGenesisExchanger is Ownable {
             return;
         }
 
-        if(_token == address(picto)){
-            require(totalCollected >= genesis.totalSupply(), "Cannot withdraw PICTO until everyone exchanges the tokens");
-        }
-
         ERC20 token = ERC20(_token);
         uint256 balance = token.balanceOf(address(this));
+
+        if(_token == address(picto)){
+            if(balance > genesis.totalSupply()){
+                balance = balance.sub(genesis.totalSupply());
+            }
+            require(balance >= genesis.totalSupply(), "Cannot withdraw PICTO until everyone exchanges the tokens");
+        }
+
         token.transfer(msg.sender, balance);
         emit ClaimedTokens(_token, msg.sender, balance);
     }
