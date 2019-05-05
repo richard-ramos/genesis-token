@@ -37,6 +37,13 @@ contract("PictosisToken", () => {
     } catch (error) {
       assert.strictEqual(error.message, "VM Exception while processing transaction: revert Transfers disabled");
     }
+
+    try {
+      await PictosisToken.methods.approveAndCall(TestContract.options.address, "100", "0xABCDEF").send({from: accounts[1]});
+      assert.fail('should have reverted');
+    } catch (error) {
+      assert.strictEqual(error.message, "VM Exception while processing transaction: revert Transfers disabled");
+    }
   });
 
   it("can transfer tokens after start date", async function() {
