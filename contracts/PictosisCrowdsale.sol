@@ -13,15 +13,16 @@ interface IMinterRole {
 }
 
 contract PictosisCrowdsale is CappedCrowdsale, MintedCrowdsale, TimedCrowdsale, FinalizableCrowdsale, Ownable {
-    address presaleAddress;
-    uint presaleSold = 0;
-    bool presaleActive = false;
-    
-    uint presaleCap   = 125000000000000000000000000;
-    uint maxSupplyCap = 650000000000000000000000000;
-    
-    address payable private teamMultisig;
-    
+    address public presaleAddress;
+    uint public presaleSold = 0;
+    bool public presaleActive = false;
+    bool public presaleFinished = false;
+
+    uint public presaleCap   = 125000000000000000000000000;
+    uint public maxSupplyCap = 650000000000000000000000000;
+
+    address payable public teamMultisig;
+
     constructor (
         uint256 openingTime,
         uint256 closingTime,
@@ -54,6 +55,7 @@ contract PictosisCrowdsale is CappedCrowdsale, MintedCrowdsale, TimedCrowdsale, 
     function startPresale() public onlyOwner {
         require(presaleAddress != address(0), "Presale address hasn't been set");
         require(presaleActive == false, "Presale is already active");
+        require(presaleFinished == false, "Presale already finished");
         require(presaleSold == 0, "Presale has already happened");
 
         presaleActive = true;
@@ -79,10 +81,11 @@ contract PictosisCrowdsale is CappedCrowdsale, MintedCrowdsale, TimedCrowdsale, 
 
     /// @notice Finish presale period
     function finishPresale() public onlyOwner {
+        require(presaleFinished == false, "Presale already finished");
         require(presaleActive == true, "Presale is not active");
-        require(presaleAddress != address(0), "Presale address hasn't been set");
 
         presaleActive = false;
+        presaleFinished = true;
         emit PresaleFinished(presaleSold, block.number);
     }
 
