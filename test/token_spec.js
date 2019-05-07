@@ -8,7 +8,7 @@ let accounts;
 config({
   contracts: {
     PictosisToken: {
-      args: [ Math.round((new Date).getTime() / 1000 + 5000) ]        
+      args: [ Math.round((new Date).getTime() / 1000 + 5000), '1000000000000000000000000000' ]        
     },
     "TestContract": {}
   }

@@ -8,10 +8,19 @@ let accounts;
 config({
   contracts: {
     PictosisToken: {
-      args: [ Math.round((new Date).getTime() / 1000 + 10000) ]        
+      args: [ Math.round((new Date).getTime() / 1000 + 10000), '1000000000000000000000000000' ]        
     },
     PictosisCrowdsale: {
-      args: [ parseInt((new Date()).getTime() / 1000, 10) + 1000, parseInt((new Date()).getTime() / 1000, 10) + 2000, '1500', "$accounts[0]", "$PictosisToken"  ],
+      args: [ 
+        parseInt((new Date()).getTime() / 1000, 10) + 1000, 
+        parseInt((new Date()).getTime() / 1000, 10) + 2000, 
+        '1500', 
+        "$accounts[0]", 
+        "$PictosisToken",
+        '125000000000000000000000000', // 125MM
+        '500000000000000000000000000', // 500MM
+        '100000000000000000000' // 100 eth
+      ],
       onDeploy: ['PictosisToken.methods.addMinter("$PictosisCrowdsale").send()']
     }
   }

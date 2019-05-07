@@ -1,3 +1,10 @@
+let secret = {};
+try {
+  secret = require('./.secret.json');
+} catch(err) {
+  console.dir("warning: .secret.json file not found; this is only needed to deploy to testnet or livenet etc..");
+}
+
 module.exports = {
   // default applies to all environments
   default: {
@@ -35,17 +42,29 @@ module.exports = {
     strategy: 'explicit', // 'implicit' is the default
     contracts: {
       PictosisToken: {
-        args: []        
+        args: [ Math.round((new Date).getTime() / 1000 + 10000), '1000000000000000000000000000' ]        
       },
       PictosisGenesisToken: {
         args: []
       },
       PictosisGenesisExchanger: {
-        args: ["$PictosisGenesisToken", "$PictosisToken"]
+        args: ["$PictosisGenesisToken", "$PictosisToken"],
+        onDeploy: ['PictosisGenesisToken.methods.setExchangeContract("$PictosisGenesisExchanger").send()']
       },
       PictosisCrowdsale: {
-        args: [ parseInt((new Date()).getTime() / 1000, 10) + 30, parseInt((new Date()).getTime() / 1000, 10) + 86400, '1500', "$accounts[0]", "$PictosisToken"  ],
+        args: [ 
+          parseInt((new Date()).getTime() / 1000, 10) + 100, 
+          parseInt((new Date()).getTime() / 1000, 10) + 5000, 
+          '1500', 
+          "$accounts[0]", 
+          "$PictosisToken",
+          '125000000000000000000000000', // 125MM
+          '500000000000000000000000000', // 500MM
+          '100000000000000000000' // 100 eth
+        ],
         onDeploy: ['PictosisToken.methods.addMinter("$PictosisCrowdsale").send()']
+        // TODO: preguntar si se van a repartir todos los genesis tokens antes del presale y crowdsale
+        // SI es asi, hacer deploy de exchanger y tokens al crear el picto token
       }
     }
   },
@@ -68,6 +87,44 @@ module.exports = {
   // merges with the settings in default
   // used with "embark run testnet"
   testnet: {
+    contracts: {
+      PictosisToken: {
+        args: [ Math.round((new Date).getTime() / 1000 + 10000), '1000000000000000000000000000' ]        
+      },
+      PictosisGenesisToken: {
+        args: []
+      },
+      PictosisGenesisExchanger: {
+        args: ["$PictosisGenesisToken", "$PictosisToken"],
+        onDeploy: ['PictosisGenesisToken.methods.setExchangeContract("$PictosisGenesisExchanger").send()']
+      },
+      PictosisCrowdsale: {
+        args: [ 
+          parseInt((new Date()).getTime() / 1000, 10) + 100, 
+          parseInt((new Date()).getTime() / 1000, 10) + 5000, 
+          '1500', 
+          "$accounts[0]", 
+          "$PictosisToken",
+          '125000000000000000000000000', // 125MM
+          '500000000000000000000000000', // 500MM
+          '100000000000000000000' // 100 eth
+        ],
+        onDeploy: ['PictosisToken.methods.addMinter("$PictosisCrowdsale").send()']
+      }
+    },
+    deployment: {
+      accounts: [
+        {
+          mnemonic: secret.mnemonic,
+          hdpath: "m/44'/60'/0'/0/",
+          numAddresses: "10"        }
+      ],
+      host: `ropsten.infura.io/${secret.infuraKey}`,
+      port: false,
+      protocol: 'https',
+      type: "rpc"
+    },
+    dappConnection: ["$WEB3"]
   },
 
   // merges with the settings in default

@@ -13,10 +13,19 @@ let normalBuyer;
 config({
   contracts: {
     PictosisToken: {
-      args: [ Math.round((new Date).getTime() / 1000 + 10000) ]        
+      args: [ Math.round((new Date).getTime() / 1000 + 10000), '1000000000000000000000000000' ]        
     },
     PictosisCrowdsale: {
-      args: [ parseInt((new Date()).getTime() / 1000, 10) + 100, parseInt((new Date()).getTime() / 1000, 10) + 5000, '1500', "$accounts[0]", "$PictosisToken"  ],
+      args: [ 
+        parseInt((new Date()).getTime() / 1000, 10) + 100, 
+        parseInt((new Date()).getTime() / 1000, 10) + 5000, 
+        '1500', 
+        "$accounts[0]", 
+        "$PictosisToken",
+        '125000000000000000000000000', // 125MM
+        '500000000000000000000000000', // 500MM
+        '100000000000000000000' // 100 eth
+      ],
       onDeploy: ['PictosisToken.methods.addMinter("$PictosisCrowdsale").send()']
     }
   }
@@ -30,7 +39,7 @@ config({
   normalBuyer = accounts[4];
 });
 
-
+const toBN = web3.utils.toBN;
 
 contract("PictosisCrowdsale - ICO", () => {
   before(async () => {
@@ -81,14 +90,19 @@ contract("PictosisCrowdsale - ICO", () => {
       assert.strictEqual(error.message, "VM Exception while processing transaction: revert");
     }
 
-    const receipt = await PictosisCrowdsale.methods.finalize().send();
+    await PictosisCrowdsale.methods.finalize().send();
 
     const teamBalanceEnd = await PictosisToken.methods.balanceOf(teamMultisig).call();
+    const cap = await PictosisToken.methods.cap().call();
+    const totalSupply = await PictosisToken.methods.totalSupply().call();
 
-    // TODO: test minting rest of tokens and sending them to wallet
-    // TODO: test that ico is not a minter anymore
+    // Rest of supply should go to multisig
+    assert(toBN(teamBalanceStart).add(toBN(cap).sub(toBN(totalSupply))), toBN(teamBalanceEnd));
 
+    const isMinter = await PictosisToken.methods.isMinter(PictosisCrowdsale).call();
 
+    // Crowdsale is not a minter anymore
+    assert(false, isMinter);
   });
 
 });
