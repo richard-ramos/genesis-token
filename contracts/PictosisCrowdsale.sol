@@ -89,7 +89,7 @@ contract PictosisCrowdsale is CappedCrowdsale, MintedCrowdsale, TimedCrowdsale, 
         emit PresaleFinished(presaleSold, block.number);
     }
 
-    function finalization() internal {
+    function _finalization() internal {
         ERC20Capped tkn = ERC20Capped(address(token()));
         uint unmintedTokens = tkn.cap().sub(tkn.totalSupply());
         ERC20Mintable(address(token())).mint(teamMultisig, unmintedTokens);

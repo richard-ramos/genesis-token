@@ -19,7 +19,7 @@ config({
   accounts = web3_accounts
 });
 
-contract("PictosisToken", () => {
+contract("PictosisCrowdsale - Presale", () => {
   it("should not be able to buy tokens", async () => {
     try {
       await web3.eth.sendTransaction({from: accounts[1], to: PictosisCrowdsale.options.address, value: web3.utils.toWei("1", "ether")});
