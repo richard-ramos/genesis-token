@@ -16,8 +16,8 @@ contract PictosisToken is ERC20, ERC20Detailed, ERC20Mintable, ERC20Capped, ERC2
         _;
     }
 
-    constructor(uint _enableTransfersDate)
-        ERC20Capped(1000000000000000000000000000)
+    constructor(uint _enableTransfersDate, uint _cap)
+        ERC20Capped(_cap)
         ERC20Mintable()
         ERC20Detailed("Pictosis Token", "PICTO", 18)
         ERC20()

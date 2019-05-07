@@ -18,24 +18,32 @@ contract PictosisCrowdsale is CappedCrowdsale, MintedCrowdsale, TimedCrowdsale, 
     bool public presaleActive = false;
     bool public presaleFinished = false;
 
-    uint public presaleCap   = 125000000000000000000000000;
-    uint public maxSupplyCap = 650000000000000000000000000;
+    uint public presaleCap;
+    uint public maxSupplyCap;
+
+    uint public maxContribETH;
 
     address payable public teamMultisig;
 
     constructor (
-        uint256 openingTime,
-        uint256 closingTime,
-        uint256 rate,
-        address payable wallet,
-        ERC20Mintable token
+        uint256 _openingTime,
+        uint256 _closingTime,
+        uint256 _rate,
+        address payable _wallet,
+        ERC20Mintable _token,
+        uint _presaleCap,
+        uint _maxSupplyCap,
+        uint _maxContribETH
     )
         public
-        Crowdsale(rate, wallet, token)
-        CappedCrowdsale(maxSupplyCap)
-        TimedCrowdsale(openingTime, closingTime)
+        Crowdsale(_rate, _wallet, _token)
+        CappedCrowdsale(_maxSupplyCap)
+        TimedCrowdsale(_openingTime, _closingTime)
     {
-        teamMultisig = wallet;
+        teamMultisig = _wallet;
+        presaleCap = _presaleCap;
+        maxSupplyCap = _maxSupplyCap;
+        maxContribETH = _maxContribETH;
     }
 
     event PresaleAddressSet(address presaleAddress);
@@ -53,10 +61,10 @@ contract PictosisCrowdsale is CappedCrowdsale, MintedCrowdsale, TimedCrowdsale, 
 
     /// @notice Enable presale period
     function startPresale() public onlyOwner {
-        require(presaleAddress != address(0), "Presale address hasn't been set");
         require(presaleActive == false, "Presale is already active");
         require(presaleFinished == false, "Presale already finished");
         require(presaleSold == 0, "Presale has already happened");
+        require(presaleAddress != address(0), "Presale address hasn't been set");
 
         presaleActive = true;
         emit PresaleStarted(block.number);
@@ -86,6 +94,8 @@ contract PictosisCrowdsale is CappedCrowdsale, MintedCrowdsale, TimedCrowdsale, 
 
         presaleActive = false;
         presaleFinished = true;
+        presaleAddress = address(0);
+
         emit PresaleFinished(presaleSold, block.number);
     }
 
@@ -108,8 +118,6 @@ contract PictosisCrowdsale is CappedCrowdsale, MintedCrowdsale, TimedCrowdsale, 
         return _contributions[beneficiary];
     }
 
-    uint public constant MAX_CONTRIB_ETH = 100 ether;
-
     /**
      * @dev Extend parent behavior requiring purchase to respect the beneficiary's funding cap.
      * @param beneficiary Token purchaser
@@ -117,7 +125,7 @@ contract PictosisCrowdsale is CappedCrowdsale, MintedCrowdsale, TimedCrowdsale, 
      */
     function _preValidatePurchase(address beneficiary, uint256 weiAmount) internal view {
         super._preValidatePurchase(beneficiary, weiAmount);
-        require(_contributions[beneficiary].add(weiAmount) <= MAX_CONTRIB_ETH, "Max allowed is 100 ETH");
+        require(_contributions[beneficiary].add(weiAmount) <= maxContribETH, "Max allowed is 100 ETH");
     }
 
     /**
