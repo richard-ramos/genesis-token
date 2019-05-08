@@ -99,10 +99,10 @@ contract("PictosisCrowdsale - ICO", () => {
     // Rest of supply should go to multisig
     assert(toBN(teamBalanceStart).add(toBN(cap).sub(toBN(totalSupply))), toBN(teamBalanceEnd));
 
-    const isMinter = await PictosisToken.methods.isMinter(PictosisCrowdsale).call();
+    const isMinter = await PictosisToken.methods.isMinter(PictosisCrowdsale.options.address).call();
 
     // Crowdsale is not a minter anymore
-    assert(false, isMinter);
+    assert.strictEqual(false, isMinter);
   });
 
 });
