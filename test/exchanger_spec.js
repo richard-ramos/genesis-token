@@ -12,8 +12,7 @@ config({
       args: []
     },
     PictosisGenesisExchanger: {
-      args: ["$PictosisGenesisToken", "$PictosisToken"],
-      onDeploy: ['PictosisGenesisToken.methods.setExchangeContract("$PictosisGenesisExchanger").send()']
+      args: ["$PictosisGenesisToken", "$PictosisToken"]
     },
     PictosisToken: {
       args: [ Math.round((new Date).getTime() / 1000 + 5000), '1000000000000000000000000000' ]        
@@ -27,8 +26,6 @@ config({
 contract("PictosisToken", () => {
   before(async () => {
     await PictosisGenesisToken.methods.mint(accounts[1], "1000").send();
-    await PictosisGenesisToken.methods.mint(accounts[2], "1000").send();
-
   })
 
   it("cannot exchange tokens before transfers are enabled", async () => {
@@ -66,11 +63,14 @@ contract("PictosisToken", () => {
   });
 
   it("account with no genesis tokens should not receive tokens", async () => {
+    let initialBalance = await PictosisToken.methods.balanceOf(accounts[2]).call();
+    assert.strictEqual(initialBalance, '0');
+
     try {
       await PictosisGenesisExchanger.methods.collect().send({from: accounts[2]});
       assert.fail('should have reverted');
     } catch (error) {
-      assert.strictEqual(error.message, "VM Exception while processing transaction: revert");
+      assert.strictEqual(error.message, "VM Exception while processing transaction: revert No tokens available or already exchanged");
     }
   });
 
@@ -88,10 +88,8 @@ contract("PictosisToken", () => {
     assert(!!receipt.events.TokensCollected, "TokensCollected() not triggered");
 
     const accountEndingBalance = await PictosisToken.methods.balanceOf(accounts[1]).call();
-    const genesisEndingBalance = await PictosisGenesisToken.methods.balanceOf(accounts[1]).call();
     
     assert.strictEqual(accountEndingBalance, '1000');
-    assert.strictEqual(genesisEndingBalance, '0');
   });
 
   it("genesis holder should not receive tokens twice", async () => {
@@ -109,25 +107,28 @@ contract("PictosisToken", () => {
     await PictosisGenesisToken.methods.mint(accounts[1], "200").send();
 
     const accountStartBalance = await PictosisToken.methods.balanceOf(accounts[1]).call();
-    const genesisStartBalance = await PictosisGenesisToken.methods.balanceOf(accounts[1]).call();
+    const genesisBalance = await PictosisGenesisToken.methods.balanceOf(accounts[1]).call();
 
     assert.strictEqual(accountStartBalance, '1000');
-    assert.strictEqual(genesisStartBalance, '200');
-
-    PictosisGenesisToken.methods.approve(PictosisGenesisExchanger.options.address, '200').send({from: accounts[1]});
+    assert.strictEqual(genesisBalance, '1200');
 
     await PictosisGenesisExchanger.methods.collect().send({from: accounts[1]});
     
     const accountEndingBalance = await PictosisToken.methods.balanceOf(accounts[1]).call();
-    const genesisEndingBalance = await PictosisGenesisToken.methods.balanceOf(accounts[1]).call();
     
     assert.strictEqual(accountEndingBalance, '1200');
-    assert.strictEqual(genesisEndingBalance, '0');
+
+    try {
+      await PictosisGenesisExchanger.methods.collect().send({from: accounts[1]});
+      assert.fail('should have reverted');
+    } catch (error) {
+      assert.strictEqual(error.message, "VM Exception while processing transaction: revert No tokens available or already exchanged");
+    }
   });
+
 
   it("extract only the amounts greater than the totalSupply", async() => {
     const initialContractBalance = await PictosisToken.methods.balanceOf(PictosisGenesisExchanger.options.address).call();
-
 
     await PictosisGenesisExchanger.methods.claimTokens(PictosisToken.options.address).send();
 
@@ -140,10 +141,5 @@ contract("PictosisToken", () => {
 
     assert.strictEqual(web3.utils.toBN(accountBalance).add(web3.utils.toBN(contractBalance)).toString(), initialContractBalance);
   });
-
+  
 });
-
-
-
-
-// TODO: genesis holder should not receive tokens twice

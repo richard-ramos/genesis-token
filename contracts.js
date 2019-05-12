@@ -48,8 +48,7 @@ module.exports = {
         args: []
       },
       PictosisGenesisExchanger: {
-        args: ["$PictosisGenesisToken", "$PictosisToken"],
-        onDeploy: ['PictosisGenesisToken.methods.setExchangeContract("$PictosisGenesisExchanger").send()']
+        args: ["$PictosisGenesisToken", "$PictosisToken"]
       },
       PictosisCrowdsale: {
         args: [ 
@@ -95,8 +94,7 @@ module.exports = {
         args: []
       },
       PictosisGenesisExchanger: {
-        args: ["$PictosisGenesisToken", "$PictosisToken"],
-        onDeploy: ['PictosisGenesisToken.methods.setExchangeContract("$PictosisGenesisExchanger").send()']
+        args: ["$PictosisGenesisToken", "$PictosisToken"]
       },
       PictosisCrowdsale: {
         args: [ 

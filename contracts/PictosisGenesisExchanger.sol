@@ -30,19 +30,19 @@ contract PictosisGenesisExchanger is Ownable {
     function collect() public {
         require(picto.areTransfersEnabled(), "Cannot collect tokens yet");
 
-        uint256 genesisBalance = genesis.balanceOf(msg.sender);
+        uint balance = genesis.balanceOf(msg.sender);
+        uint256 amountToSend = balance.sub(collected[msg.sender]);
 
-        require(genesisBalance > 0, "No tokens available or already exchanged");
-        require(picto.balanceOf(address(this)) >= genesisBalance, "Exchanger does not have funds available");
+        require(balance >= collected[msg.sender], "Balance must be greater than collected amount");
+        require(amountToSend > 0, "No tokens available or already exchanged");
+        require(picto.balanceOf(address(this)) >= amountToSend, "Exchanger does not have funds available");
 
-        totalCollected = totalCollected.add(genesisBalance);
-        collected[msg.sender] = collected[msg.sender].add(genesisBalance);
+        totalCollected = totalCollected.add(amountToSend);
+        collected[msg.sender] = collected[msg.sender].add(amountToSend);
 
-        require(picto.transfer(msg.sender, genesisBalance), "Transfer failure");
+        require(picto.transfer(msg.sender, amountToSend), "Transfer failure");
 
-        genesis.completeExchange(msg.sender);
-
-        emit TokensCollected(msg.sender, genesisBalance);
+        emit TokensCollected(msg.sender, amountToSend);
     }
 
     /// @notice This method can be used by the minter to extract mistakenly
