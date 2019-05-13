@@ -64,3 +64,4 @@ typings/
 build
 chains.json
 embarkArtifacts/
+.secret.json
