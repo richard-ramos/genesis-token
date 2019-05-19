@@ -88,7 +88,7 @@ module.exports = {
   testnet: {
     contracts: {
       PictosisToken: {
-        args: [ Math.round((new Date).getTime() / 1000 + 10000), '1000000000000000000000000000' ]        
+        args: [ Math.round((new Date).getTime() / 1000 + 86400 * 3), '1000000000000000000000000000' ]        
       },
       PictosisGenesisToken: {
         args: []
@@ -98,17 +98,21 @@ module.exports = {
       },
       PictosisCrowdsale: {
         args: [ 
-          parseInt((new Date()).getTime() / 1000, 10) + 100, 
-          parseInt((new Date()).getTime() / 1000, 10) + 5000, 
+          Math.round((new Date()).getTime() / 1000) + 600, 
+          Math.round((new Date()).getTime() / 1000) + 86400 * 3, 
           '1500', 
           "$accounts[0]", 
           "$PictosisToken",
-          '125000000000000000000000000', // 125MM
-          '500000000000000000000000000', // 500MM
-          '100000000000000000000' // 100 eth
+          '3000000000000000000000',  // 3000
+          '15000000000000000000000', // 15000
+          '1000000000000000000' // 1 eth
         ],
         onDeploy: ['PictosisToken.methods.addMinter("$PictosisCrowdsale").send()']
-      }
+      },
+      PictosisBounties: {
+        args: ["$PictosisGenesisToken", "3000000000000000000000"],
+        onDeploy: ['PictosisGenesisToken.methods.addMinter("$PictosisBounties").send()']
+      },
     },
     deployment: {
       accounts: [
