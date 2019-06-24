@@ -13,14 +13,8 @@ interface IMinterRole {
 }
 
 contract PictosisCrowdsale is CappedCrowdsale, MintedCrowdsale, TimedCrowdsale, FinalizableCrowdsale, Ownable {
-    address public presaleAddress;
-    uint public presaleSold = 0;
-    bool public presaleActive = false;
-    bool public presaleFinished = false;
 
-    uint public presaleCap;
     uint public maxSupplyCap;
-
     uint public maxContribETH;
 
     address payable public teamMultisig;
@@ -31,7 +25,6 @@ contract PictosisCrowdsale is CappedCrowdsale, MintedCrowdsale, TimedCrowdsale, 
         uint256 _rate,
         address payable _wallet,
         ERC20Mintable _token,
-        uint _presaleCap,
         uint _maxSupplyCap,
         uint _maxContribETH
     )
@@ -41,62 +34,8 @@ contract PictosisCrowdsale is CappedCrowdsale, MintedCrowdsale, TimedCrowdsale, 
         TimedCrowdsale(_openingTime, _closingTime)
     {
         teamMultisig = _wallet;
-        presaleCap = _presaleCap;
         maxSupplyCap = _maxSupplyCap;
         maxContribETH = _maxContribETH;
-    }
-
-    event PresaleAddressSet(address presaleAddress);
-
-    /// @notice Set presale address
-    /// @param _presaleAddress address that will mint tokens
-    function setPresaleAddress(address _presaleAddress) public onlyOwner {
-        require(presaleAddress == address(0), "Presale address has been set already");
-
-        presaleAddress = _presaleAddress;
-        emit PresaleAddressSet(presaleAddress);
-    }
-
-    event PresaleStarted(uint blockNumber);
-
-    /// @notice Enable presale period
-    function startPresale() public onlyOwner {
-        require(presaleActive == false, "Presale is already active");
-        require(presaleFinished == false, "Presale already finished");
-        require(presaleSold == 0, "Presale has already happened");
-        require(presaleAddress != address(0), "Presale address hasn't been set");
-
-        presaleActive = true;
-        emit PresaleStarted(block.number);
-    }
-
-    /// @notice Mint tokens (can only be called by the presale address)
-    /// @param _account Address to mint tokens
-    /// @param _value Amount in token equivalents to mint
-    function mint(address _account, uint256 _value) public {
-        require(presaleActive == true, "Presale is not active");
-        require(msg.sender == presaleAddress, "Only presale address can call this function");
-
-        uint currentlySold = presaleSold;
-        presaleSold = currentlySold.add(_value);
-
-        require(presaleSold <= presaleCap, "Exceeds presale cap");
-
-        ERC20Mintable(address(token())).mint(_account, _value);
-    }
-
-    event PresaleFinished(uint amountNotSold, uint blockNumber);
-
-    /// @notice Finish presale period
-    function finishPresale() public onlyOwner {
-        require(presaleFinished == false, "Presale already finished");
-        require(presaleActive == true, "Presale is not active");
-
-        presaleActive = false;
-        presaleFinished = true;
-        presaleAddress = address(0);
-
-        emit PresaleFinished(presaleSold, block.number);
     }
 
     function _finalization() internal {

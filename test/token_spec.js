@@ -4,6 +4,7 @@ const PictosisToken = require('Embark/contracts/PictosisToken');
 const TestContract = require('Embark/contracts/TestContract');
 
 let accounts;
+let newMinter;
 
 config({
   contracts: {
@@ -13,7 +14,8 @@ config({
     "TestContract": {}
   }
 }, (_err, web3_accounts) => {
-  accounts = web3_accounts
+  accounts = web3_accounts;
+  newMinter = accounts[3];
 });
 
 contract("PictosisToken", () => {
@@ -62,4 +64,18 @@ contract("PictosisToken", () => {
     
     assert.strictEqual(balance, "100");
   });
+
+  it("only owner can remove minter", async () => {
+    await PictosisToken.methods.addMinter(newMinter).send({from: accounts[0]});
+
+    try {
+      await PictosisToken.methods.removeMinter(newMinter).send({from: accounts[1]});
+      assert.fail('should have reverted');
+    } catch (error) {
+      assert.strictEqual(error.message, "VM Exception while processing transaction: revert");
+    }
+
+    await PictosisToken.methods.removeMinter(newMinter).send({from: accounts[0]});
+  });
+
 });

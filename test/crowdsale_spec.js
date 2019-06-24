@@ -4,11 +4,8 @@ const PictosisToken = require('Embark/contracts/PictosisToken');
 const PictosisCrowdsale = require('Embark/contracts/PictosisCrowdsale');
 
 let accounts;
-let presaleAccount;
-let presaleBuyer;
 let whale;
 let normalBuyer;
-
 
 config({
   contracts: {
@@ -19,11 +16,10 @@ config({
       args: [ 
         parseInt((new Date()).getTime() / 1000, 10) + 100, 
         parseInt((new Date()).getTime() / 1000, 10) + 5000, 
-        '1500', 
+        '2500', 
         "$accounts[0]", 
         "$PictosisToken",
-        '125000000000000000000000000', // 125MM
-        '500000000000000000000000000', // 500MM
+        '625000000000000000000000000', // 500MM
         '100000000000000000000' // 100 eth
       ],
       onDeploy: ['PictosisToken.methods.addMinter("$PictosisCrowdsale").send()']
@@ -33,8 +29,6 @@ config({
   accounts = web3_accounts;
 
   teamMultisig = accounts[0];
-  presaleAccount = accounts[1];
-  presaleBuyer = accounts[2];
   whale = accounts[3];
   normalBuyer = accounts[4];
 });
@@ -43,15 +37,8 @@ const toBN = web3.utils.toBN;
 
 contract("PictosisCrowdsale - ICO", () => {
   before(async () => {
-    // Doing the presale
-    await PictosisCrowdsale.methods.setPresaleAddress(presaleAccount).send();
-    await PictosisCrowdsale.methods.startPresale().send();
-    const presaleCap = await PictosisCrowdsale.methods.presaleCap().call();
-    await PictosisCrowdsale.methods.mint(presaleBuyer, presaleCap).send({from: presaleAccount});
-    await PictosisCrowdsale.methods.finishPresale().send();
-
     // Sending ether to whale
-    await web3.eth.sendTransaction({from: presaleBuyer, to: whale, value: web3.utils.toWei('10', 'ether')});
+    await web3.eth.sendTransaction({from: accounts[1], to: whale, value: web3.utils.toWei('10', 'ether')});
 
     await testUtils.increaseTime(500);
   });

@@ -57,8 +57,7 @@ module.exports = {
           '1500', 
           "$accounts[0]", 
           "$PictosisToken",
-          '125000000000000000000000000', // 125MM
-          '500000000000000000000000000', // 500MM
+          '625000000000000000000000000', // 500MM
           '100000000000000000000' // 100 eth
         ],
         onDeploy: ['PictosisToken.methods.addMinter("$PictosisCrowdsale").send()']
@@ -103,16 +102,11 @@ module.exports = {
           '1500', 
           "$accounts[0]", 
           "$PictosisToken",
-          '3000000000000000000000',  // 3000
           '15000000000000000000000', // 15000
           '1000000000000000000' // 1 eth
         ],
         onDeploy: ['PictosisToken.methods.addMinter("$PictosisCrowdsale").send()']
-      },
-      PictosisBounties: {
-        args: ["$PictosisGenesisToken", "3000000000000000000000"],
-        onDeploy: ['PictosisGenesisToken.methods.addMinter("$PictosisBounties").send()']
-      },
+      }
     },
     deployment: {
       accounts: [

@@ -26,11 +26,10 @@ config({
       args: [ 
         parseInt((new Date()).getTime() / 1000, 10) + 100, 
         parseInt((new Date()).getTime() / 1000, 10) + 5000, 
-        '1500', 
+        '2500', 
         "$accounts[0]", 
         "$PictosisToken",
-        '125000000000000000000000000', // 125MM
-        '500000000000000000000000000', // 500MM
+        '625000000000000000000000000', // 500MM
         '100000000000000000000' // 100 eth
       ],
       onDeploy: [
@@ -43,8 +42,6 @@ config({
   accounts = web3_accounts;
 
   teamMultisig = accounts[0];
-  presaleAccount = accounts[1];
-  presaleBuyer = accounts[2];
   whale = accounts[3];
   normalBuyer = accounts[4];
 });
@@ -56,15 +53,8 @@ contract("PictosisCrowdsale - Distribution", () => {
     // Mint Genesis Tokens
     await PictosisGenesisToken.methods.mint(whale, "125000000000000000000000000").send();
 
-    // TODO: preguntar si se van a repartir todos los genesis tokens antes del presale y crowdsale
+    // TODO: preguntar si se van a repartir todos los genesis tokens antes del crowdsale
     // SI es asi, hacer deploy de exchanger y tokens al crear el picto token
-
-    // Doing the presale
-    await PictosisCrowdsale.methods.setPresaleAddress(presaleAccount).send();
-    await PictosisCrowdsale.methods.startPresale().send();
-    const presaleCap = await PictosisCrowdsale.methods.presaleCap().call();
-    await PictosisCrowdsale.methods.mint(presaleBuyer, presaleCap).send({from: presaleAccount});
-    await PictosisCrowdsale.methods.finishPresale().send();
 
     await testUtils.increaseTime(500);
 

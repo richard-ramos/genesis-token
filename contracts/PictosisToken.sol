@@ -1,11 +1,11 @@
 pragma solidity ^0.5.2;
 
-import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol"; 
-import "openzeppelin-solidity/contracts/token/ERC20/ERC20Detailed.sol"; 
-import "openzeppelin-solidity/contracts/token/ERC20/ERC20Mintable.sol"; 
-import "openzeppelin-solidity/contracts/token/ERC20/ERC20Capped.sol"; 
+import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
+import "openzeppelin-solidity/contracts/token/ERC20/ERC20Detailed.sol";
+import "openzeppelin-solidity/contracts/token/ERC20/ERC20Mintable.sol";
+import "openzeppelin-solidity/contracts/token/ERC20/ERC20Capped.sol";
 import "openzeppelin-solidity/contracts/drafts/ERC20Snapshot.sol";
-import "openzeppelin-solidity/contracts/ownership/Ownable.sol"; 
+import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 import "./ApproveAndCallFallBack.sol";
 
 contract PictosisToken is ERC20, ERC20Detailed, ERC20Mintable, ERC20Capped, ERC20Snapshot, Ownable {
@@ -25,6 +25,10 @@ contract PictosisToken is ERC20, ERC20Detailed, ERC20Mintable, ERC20Capped, ERC2
         public
     {
         transfersEnabledDate = _enableTransfersDate;
+    }
+
+    function removeMinter(address account) public onlyOwner {
+        _removeMinter(account);
     }
 
     function areTransfersEnabled() public view returns(bool) {
